@@ -122,11 +122,16 @@ remboursement de l'ancien sponsor est calculé comme
    - Crée un projet sur [supabase.com](https://supabase.com).
    - Récupère la "Connection string" en mode **connection pooling**
      (Project Settings → Database) et mets-la dans `DATABASE_URL`.
-   - Depuis ta machine (avec `DATABASE_URL` pointant sur Supabase) :
-     ```bash
-     npx prisma db push
-     npm run db:seed
-     ```
+   - Crée les tables et les 6 zones — deux options :
+     - **Sans rien installer** : ouvre Supabase → **SQL Editor** → *New
+       query*, colle tout le contenu de `prisma/supabase_bootstrap.sql`, et
+       clique *Run*.
+     - **Avec Node installé** (depuis ta machine, avec `DATABASE_URL` pointant
+       sur Supabase) :
+       ```bash
+       npx prisma db push
+       npm run db:seed
+       ```
 2. **Stockage des logos (Vercel Blob)**
    - Dans le dashboard Vercel du projet : **Storage → Create → Blob**.
    - Vercel ajoute automatiquement `BLOB_READ_WRITE_TOKEN` aux variables
