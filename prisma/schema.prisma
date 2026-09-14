@@ -1,0 +1,65 @@
+// Schéma de base de données — Postgres (Supabase ou Neon recommandés)
+//
+// Deux tables :
+//  - Zone         : une zone du corps sponsorisable (épaules, biceps, ...)
+//  - Sponsorship  : une transaction de sponsoring (paiement) pour une zone.
+//                    La zone pointe vers son sponsoring actif via
+//                    `activeSponsorshipId` (référence applicative, pas de
+//                    contrainte FK circulaire — volontairement simple et
+//                    robuste).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Zone {
+  id     String @id @default(cuid())
+  key    String @unique // identifiant stable, ex: "epaules", "biceps"...
+  label  String // nom affiché, ex: "Épaules"
+  order  Int    @default(0) // ordre d'affichage sur la page
+
+  basePriceCents    Int // prix de départ (première enchère), en centimes
+  currentPriceCents Int // prix à payer pour la prochaine enchère (double à chaque vente)
+  priceVersion      Int      @default(0) // compteur optimiste anti-course (double paiement simultané)
+  deadline          DateTime // date limite des enchères pour cette zone
+
+  activeSponsorshipId String? // id du Sponsorship actuellement affiché sur le corps
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([activeSponsorshipId])
+}
+
+model Sponsorship {
+  id     String @id @default(cuid())
+  zoneId String
+
+  amountPaidCents Int
+
+  // La session Stripe Checkout sert aussi de jeton public non-devinable
+  // pour la page d'upload post-paiement (/upload/[sessionId]).
+  stripeCheckoutSessionId String  @unique
+  stripePaymentIntentId   String?
+
+  status String // "pending_upload" | "active" | "refunded" | "voided"
+
+  sponsorName String?
+  sponsorUrl  String?
+  logoUrl     String?
+
+  refundedAmountCents Int?
+  refundedAt          DateTime?
+  refundReason         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([zoneId])
+  @@index([status])
+}

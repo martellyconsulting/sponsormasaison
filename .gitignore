@@ -1,0 +1,29 @@
+# deps
+node_modules/
+
+# next
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# prisma
+prisma/dev.db
+
+# uploads (local dev fallback storage — not used in production, files live on Vercel Blob)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# 3D scan asset — provided privately by the athlete, never committed to the repo
+public/models/*.glb
+
+# misc
+.DS_Store
+*.log
+.vercel

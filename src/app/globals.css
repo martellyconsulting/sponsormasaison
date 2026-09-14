@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+::selection {
+  background: #c8ff3d;
+  color: #0a0d12;
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
+}
+
+/* Ligne d'accroche technique façon compteur de chrono */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.text-outline {
+  -webkit-text-stroke: 1px rgba(200, 255, 61, 0.6);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  scrollbar-width: none;
+}
