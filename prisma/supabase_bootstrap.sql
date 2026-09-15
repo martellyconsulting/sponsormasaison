@@ -59,10 +59,10 @@ CREATE INDEX IF NOT EXISTS "Sponsorship_status_idx" ON "Sponsorship"("status");
 -- voir src/lib/races.config.ts)
 INSERT INTO "Zone" ("id", "key", "label", "order", "basePriceCents", "currentPriceCents", "deadline", "updatedAt")
 VALUES
-    ('zone-epaules',    'epaules',    'Épaules',      0, 15000, 15000, '2026-10-11T08:00:00.000Z', CURRENT_TIMESTAMP),
-    ('zone-biceps',     'biceps',     'Biceps',       1, 10000, 10000, '2026-10-11T08:00:00.000Z', CURRENT_TIMESTAMP),
-    ('zone-avant-bras', 'avant_bras', 'Avant-bras',   2,  8000,  8000, '2026-10-11T08:00:00.000Z', CURRENT_TIMESTAMP),
-    ('zone-omoplates',  'omoplates',  'Omoplates',    3, 12000, 12000, '2026-10-11T08:00:00.000Z', CURRENT_TIMESTAMP),
-    ('zone-cuisses',    'cuisses',    'Cuisses',      4, 18000, 18000, '2026-10-11T08:00:00.000Z', CURRENT_TIMESTAMP),
-    ('zone-mollets',    'mollets',    'Mollets',      5,  9000,  9000, '2026-10-11T08:00:00.000Z', CURRENT_TIMESTAMP)
+    ('zone-epaules',    'epaules',    'Épaules',      0, 15000, 15000, '2026-11-07T08:00:00.000Z', CURRENT_TIMESTAMP),
+    ('zone-biceps',     'biceps',     'Biceps',       1, 10000, 10000, '2026-11-07T08:00:00.000Z', CURRENT_TIMESTAMP),
+    ('zone-avant-bras', 'avant_bras', 'Avant-bras',   2,  8000,  8000, '2026-11-07T08:00:00.000Z', CURRENT_TIMESTAMP),
+    ('zone-omoplates',  'omoplates',  'Omoplates',    3, 12000, 12000, '2026-11-07T08:00:00.000Z', CURRENT_TIMESTAMP),
+    ('zone-cuisses',    'cuisses',    'Cuisses',      4, 18000, 18000, '2026-11-07T08:00:00.000Z', CURRENT_TIMESTAMP),
+    ('zone-mollets',    'mollets',    'Mollets',      5,  9000,  9000, '2026-11-07T08:00:00.000Z', CURRENT_TIMESTAMP)
 ON CONFLICT ("key") DO NOTHING;

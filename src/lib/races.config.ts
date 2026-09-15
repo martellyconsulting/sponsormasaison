@@ -1,7 +1,4 @@
 // Calendrier des courses de la saison.
-//
-// ⚠️ Dates de démonstration — à remplacer par les vraies dates de la saison
-// avant mise en production (aucune autre modification de code nécessaire).
 
 export type Race = {
   id: string;
@@ -17,7 +14,7 @@ export const RACES: Race[] = [
     id: "hyrox-solo-pro",
     name: "Hyrox Solo Pro",
     shortName: "Hyrox Solo",
-    date: "2026-03-14T09:00:00.000Z", // TODO: date réelle
+    date: "2026-10-30T08:00:00.000Z",
     location: "À confirmer",
     discipline: "hyrox-solo",
   },
@@ -25,16 +22,16 @@ export const RACES: Race[] = [
     id: "hyrox-duo",
     name: "Hyrox Duo",
     shortName: "Hyrox Duo",
-    date: "2026-05-09T09:00:00.000Z", // TODO: date réelle
+    date: "2026-11-01T08:00:00.000Z",
     location: "À confirmer",
     discipline: "hyrox-duo",
   },
   {
     id: "marathon",
-    name: "Marathon",
+    name: "Marathon Nice-Cannes",
     shortName: "Marathon",
-    date: "2026-10-11T08:00:00.000Z", // TODO: date réelle
-    location: "À confirmer",
+    date: "2026-11-07T08:00:00.000Z",
+    location: "Nice - Cannes",
     discipline: "marathon",
   },
 ];
