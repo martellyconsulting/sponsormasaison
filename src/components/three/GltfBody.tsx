@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { BODY_DIMENSIONS } from "@/lib/zones.config";
+import { AVATAR_GROUP_Y_OFFSET, BODY_DIMENSIONS } from "@/lib/zones.config";
 
 /**
  * Charge le vrai scan corporel (`public/models/athlete.glb`), le recentre à
@@ -49,18 +49,23 @@ export function GltfBody({ path, calibrate }: { path: string; calibrate: boolean
   const handleClick = (event: any) => {
     if (!calibrate) return;
     event.stopPropagation();
-    const local = group.current
-      ? group.current.worldToLocal(event.point.clone())
-      : event.point;
+    // Les ancres de zones (zones.config.ts) sont exprimées dans le repère du
+    // <group> racine partagé d'AvatarCanvas (décalé de AVATAR_GROUP_Y_OFFSET
+    // par rapport au monde), PAS dans le repère interne de ce composant (qui
+    // a son propre décalage supplémentaire pour poser les pieds au sol). On
+    // convertit donc directement depuis les coordonnées monde du clic,
+    // plutôt que via le group local de ce composant.
+    const point = event.point as THREE.Vector3;
+    const local = {
+      x: point.x,
+      y: point.y - AVATAR_GROUP_Y_OFFSET,
+      z: point.z,
+    };
     // eslint-disable-next-line no-console
     console.log(
       `[calibrate] position: [${local.x.toFixed(3)}, ${local.y.toFixed(3)}, ${local.z.toFixed(3)}]`,
     );
-    window.dispatchEvent(
-      new CustomEvent("calibrate-point", {
-        detail: { x: local.x, y: local.y, z: local.z },
-      }),
-    );
+    window.dispatchEvent(new CustomEvent("calibrate-point", { detail: local }));
   };
 
   return (

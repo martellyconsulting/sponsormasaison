@@ -6,6 +6,7 @@ import { ContactShadows, OrbitControls } from "@react-three/drei";
 import type { ZoneDTO } from "@/types/zone";
 import { BodyRig } from "./BodyRig";
 import { ResponsiveCamera } from "./ResponsiveCamera";
+import { AVATAR_GROUP_Y_OFFSET } from "@/lib/zones.config";
 
 export function AvatarCanvas({
   zones,
@@ -49,7 +50,7 @@ export function AvatarCanvas({
       <pointLight position={[1.5, -1, 1]} intensity={0.45} color="#ff4d2e" />
 
       <Suspense fallback={null}>
-        <group position={[0, -0.05, 0]}>
+        <group position={[0, AVATAR_GROUP_Y_OFFSET, 0]}>
           <BodyRig
             zones={zones}
             onSelectZone={onSelectZone}
@@ -62,7 +63,7 @@ export function AvatarCanvas({
 
       <OrbitControls
         makeDefault
-        autoRotate
+        autoRotate={!calibrate}
         autoRotateSpeed={1.4}
         enablePan={false}
         enableZoom

@@ -47,19 +47,25 @@ export function BodyRig({
         <ProceduralBody />
       )}
 
-      {ZONES.map((config) => {
-        const zone = zoneByKey.get(config.key);
-        if (!zone) return null;
-        return (
-          <ZoneMarker
-            key={config.key}
-            config={config}
-            zone={zone}
-            onSelect={() => onSelectZone(config.key)}
-            highlighted={selectedZoneKey === config.key}
-          />
-        );
-      })}
+      {/*
+        En mode calibration, les pins (boutons DOM superposés) intercepteraient
+        les clics destinés au maillage 3D en dessous — on les masque pour
+        avoir un accès direct au corps.
+      */}
+      {!calibrate &&
+        ZONES.map((config) => {
+          const zone = zoneByKey.get(config.key);
+          if (!zone) return null;
+          return (
+            <ZoneMarker
+              key={config.key}
+              config={config}
+              zone={zone}
+              onSelect={() => onSelectZone(config.key)}
+              highlighted={selectedZoneKey === config.key}
+            />
+          );
+        })}
 
       {calibrate && calibrationPoint && (
         <Html position={[calibrationPoint.x, calibrationPoint.y, calibrationPoint.z]} center>
