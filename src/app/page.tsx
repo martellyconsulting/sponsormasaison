@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AvatarCanvas } from "@/components/three/AvatarCanvas";
 import { MatrixRain } from "@/components/MatrixRain";
+import { AthleteVideoPanel } from "@/components/AthleteVideoPanel";
 import { SponsorModal } from "@/components/SponsorModal";
 import { SponsorsOverviewModal } from "@/components/SponsorsOverviewModal";
 import { HowItWorksModal } from "@/components/HowItWorksModal";
@@ -20,6 +21,7 @@ export default function HomePage() {
   const [showOverview, setShowOverview] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const { enabled: soundOn, toggle: toggleSound } = useMotivationalBeat();
+  const [showBackVideo, setShowBackVideo] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -50,8 +52,12 @@ export default function HomePage() {
           onSelectZone={setSelectedZoneKey}
           selectedZoneKey={selectedZoneKey}
           calibrate={calibrate}
+          onBackFacingChange={setShowBackVideo}
         />
       </div>
+
+      {/* Miroir vidéo : apparaît seulement quand l'avatar tourne le dos à la caméra. */}
+      <AthleteVideoPanel visible={showBackVideo} />
 
       {loading && zones.length === 0 && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-arena-steel">

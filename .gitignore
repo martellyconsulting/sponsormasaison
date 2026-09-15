@@ -23,6 +23,10 @@ public/uploads/*
 # 3D scan asset — provided privately by the athlete, never committed to the repo
 public/models/*.glb
 
+# Vidéo personnelle de l'athlète — idem, jamais committée sans confirmation explicite
+public/videos/*.mp4
+public/videos/*.webm
+
 # misc
 .DS_Store
 *.log

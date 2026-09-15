@@ -6,6 +6,7 @@ import { ContactShadows, OrbitControls } from "@react-three/drei";
 import type { ZoneDTO } from "@/types/zone";
 import { BodyRig } from "./BodyRig";
 import { ResponsiveCamera } from "./ResponsiveCamera";
+import { FacingTracker } from "./FacingTracker";
 import { AVATAR_GROUP_Y_OFFSET } from "@/lib/zones.config";
 
 export function AvatarCanvas({
@@ -13,11 +14,13 @@ export function AvatarCanvas({
   onSelectZone,
   selectedZoneKey,
   calibrate,
+  onBackFacingChange,
 }: {
   zones: ZoneDTO[];
   onSelectZone: (key: string) => void;
   selectedZoneKey: string | null;
   calibrate: boolean;
+  onBackFacingChange?: (back: boolean) => void;
 }) {
   return (
     <Canvas
@@ -29,6 +32,7 @@ export function AvatarCanvas({
     >
       {/* Fond transparent : laisse apparaître le fond animé (MatrixRain) posé derrière ce canvas. */}
       <ResponsiveCamera />
+      {onBackFacingChange && <FacingTracker onBackFacingChange={onBackFacingChange} />}
 
       {/*
         Éclairage entièrement local (pas de HDR chargé depuis un CDN externe
