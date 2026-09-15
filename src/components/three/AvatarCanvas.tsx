@@ -25,10 +25,9 @@ export function AvatarCanvas({
       dpr={[1, 2]}
       camera={{ position: [0, 0.1, 2.6], fov: 44 }}
       className="touch-none"
-      gl={{ antialias: true, preserveDrawingBuffer: false }}
+      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false }}
     >
-      <color attach="background" args={["#0a0d12"]} />
-      <fog attach="fog" args={["#0a0d12", 4, 9]} />
+      {/* Fond transparent : laisse apparaître le fond animé (MatrixRain) posé derrière ce canvas. */}
       <ResponsiveCamera />
 
       {/*

@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AvatarCanvas } from "@/components/three/AvatarCanvas";
+import { MatrixRain } from "@/components/MatrixRain";
 import { SponsorModal } from "@/components/SponsorModal";
 import { SponsorsOverviewModal } from "@/components/SponsorsOverviewModal";
 import { HowItWorksModal } from "@/components/HowItWorksModal";
 import { NextRaceHUD } from "@/components/NextRaceHUD";
+import { SoundToggle } from "@/components/SoundToggle";
 import { useZones } from "@/hooks/useZones";
+import { useMotivationalBeat } from "@/hooks/useMotivationalBeat";
 import { getZoneConfig } from "@/lib/zones.config";
 
 export default function HomePage() {
@@ -16,6 +19,7 @@ export default function HomePage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [showOverview, setShowOverview] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const { enabled: soundOn, toggle: toggleSound } = useMotivationalBeat();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -36,6 +40,9 @@ export default function HomePage() {
 
   return (
     <main className="relative h-[100dvh] w-screen overflow-hidden bg-arena-bg">
+      {/* Fond animé, derrière l'avatar 3D (canvas transparent) */}
+      <MatrixRain />
+
       {/* Avatar 3D en fond, plein écran */}
       <div className="absolute inset-0">
         <AvatarCanvas
@@ -70,7 +77,10 @@ export default function HomePage() {
             </button>
           </div>
 
-          <NextRaceHUD />
+          <div className="flex items-start gap-3">
+            <SoundToggle enabled={soundOn} onToggle={toggleSound} />
+            <NextRaceHUD />
+          </div>
         </header>
 
         {notice && (
