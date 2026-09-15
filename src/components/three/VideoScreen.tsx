@@ -20,7 +20,11 @@ const FRAME_MARGIN = 0.05;
  */
 const TARGET = new THREE.Vector3(0, -0.05, 0);
 const AVATAR_HALF_WIDTH = 0.42; // dégagement pour ne jamais chevaucher l'avatar
-const GAP = 0.14;
+const GAP = 0.48; // marge nette pour ne pas coller à l'épaule droite
+
+// Vecteurs de travail réutilisés à chaque frame (évite une allocation à 60fps).
+const camRight = new THREE.Vector3();
+const nextPosition = new THREE.Vector3();
 
 export function VideoScreen() {
   const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
@@ -32,9 +36,19 @@ export function VideoScreen() {
   // son échelle et sa position à chaque frame en fonction du champ de vision
   // réel de la caméra (qui change lui-même selon l'écran, voir
   // ResponsiveCamera), plutôt qu'une taille fixe qui déborderait sur mobile.
+  //
+  // Il doit aussi rester visible en permanence, comme un vrai écran que
+  // l'athlète regarderait tout le temps : on le fait donc pivoter pour
+  // toujours faire face à la caméra (billboard) et on le positionne "à
+  // côté" de l'avatar dans le repère de la caméra plutôt qu'en coordonnées
+  // monde fixes — sinon, en orbitant, on ne voyait la vidéo que de face et
+  // l'écran se retrouvait visuellement collé à l'épaule sous certains
+  // angles.
   useFrame(({ camera, size }) => {
     const group = groupRef.current;
     if (!group || !(camera instanceof THREE.PerspectiveCamera)) return;
+
+    group.quaternion.copy(camera.quaternion);
 
     const distance = camera.position.distanceTo(TARGET);
     const aspect = size.width / size.height;
@@ -47,9 +61,12 @@ export function VideoScreen() {
       0.32,
       1,
     );
-
     group.scale.setScalar(maxScale);
-    group.position.x = rightEdge - (PLANE_WIDTH * maxScale) / 2;
+
+    const xOffset = rightEdge - (PLANE_WIDTH * maxScale) / 2;
+    camRight.setFromMatrixColumn(camera.matrixWorld, 0);
+    nextPosition.copy(TARGET).addScaledVector(camRight, xOffset);
+    group.position.copy(nextPosition);
   });
 
   useEffect(() => {
@@ -114,19 +131,26 @@ export function VideoScreen() {
 
   return (
     <group ref={groupRef} position={[-1.15, -0.05, 0]}>
+      {/*
+        side={THREE.DoubleSide} sur les trois plans : l'écran est un objet
+        fixe du décor (il tourne avec la scène, pas avec la caméra), donc
+        sans ça sa face arrière était invisible (culling par défaut) dès
+        qu'on orbitait derrière l'avatar — il ne fallait pas qu'il ne
+        s'affiche que de face.
+      */}
       {/* Bordure/bezel dans notre couleur de marque, légèrement en retrait */}
       <mesh position={[0, 0, -0.01]}>
         <planeGeometry args={[PLANE_WIDTH + FRAME_MARGIN, PLANE_HEIGHT + FRAME_MARGIN]} />
-        <meshBasicMaterial color="#c8ff3d" toneMapped={false} />
+        <meshBasicMaterial color="#c8ff3d" toneMapped={false} side={THREE.DoubleSide} />
       </mesh>
       <mesh position={[0, 0, -0.005]}>
         <planeGeometry args={[PLANE_WIDTH + FRAME_MARGIN * 0.5, PLANE_HEIGHT + FRAME_MARGIN * 0.5]} />
-        <meshBasicMaterial color="#05070a" toneMapped={false} />
+        <meshBasicMaterial color="#05070a" toneMapped={false} side={THREE.DoubleSide} />
       </mesh>
-      {/* Écran, face à la caméra — même sens que l'avatar */}
+      {/* Écran, même sens que l'avatar */}
       <mesh>
         <planeGeometry args={[PLANE_WIDTH, PLANE_HEIGHT]} />
-        <meshBasicMaterial map={texture} toneMapped={false} />
+        <meshBasicMaterial map={texture} toneMapped={false} side={THREE.DoubleSide} />
       </mesh>
     </group>
   );
