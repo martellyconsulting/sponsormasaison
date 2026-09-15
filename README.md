@@ -121,7 +121,10 @@ remboursement de l'ancien sponsor est calculé comme
 1. **Base de données (Supabase)**
    - Crée un projet sur [supabase.com](https://supabase.com).
    - Récupère la "Connection string" en mode **connection pooling**
-     (Project Settings → Database) et mets-la dans `DATABASE_URL`.
+     (Project Settings → Database) et mets-la dans `DATABASE_URL`. Ajoute
+     `?pgbouncer=true` à la fin de l'URL (obligatoire avec Prisma + le
+     pooler Supabase, sous peine d'erreurs aléatoires
+     `prepared statement "sXX" already exists` en production).
    - Crée les tables et les 6 zones — deux options :
      - **Sans rien installer** : ouvre Supabase → **SQL Editor** → *New
        query*, colle tout le contenu de `prisma/supabase_bootstrap.sql`, et
