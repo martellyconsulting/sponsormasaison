@@ -19,33 +19,24 @@ export function ZoneMarker({
   onSelect: () => void;
   highlighted: boolean;
 }) {
-  const leftQuat = useMemo(() => quaternionFromNormal(config.anchors.left.normal), [config]);
-  const rightQuat = useMemo(() => quaternionFromNormal(config.anchors.right.normal), [config]);
+  const quat = useMemo(() => quaternionFromNormal(config.anchor.normal), [config]);
 
   const placeholderVariant: "empty" | "pending" = zone.sponsor ? "pending" : "empty";
   const placeholderTitle = zone.sponsor
     ? zone.sponsor.sponsorName ?? "Nouveau sponsor"
     : `${config.shortLabel} libre`;
 
-  const pinCenter: [number, number, number] = [
-    (config.anchors.left.position[0] + config.anchors.right.position[0]) / 2,
-    (config.anchors.left.position[1] + config.anchors.right.position[1]) / 2 + 0.02,
-    Math.max(config.anchors.left.position[2], config.anchors.right.position[2]) + 0.16,
-  ];
+  const [ax, ay, az] = config.anchor.position;
+  const [nx, ny, nz] = config.anchor.normal;
+  // Le pin flotte légèrement au-dessus/devant le panneau logo, dans la
+  // direction de sa normale, pour rester lisible sans le recouvrir.
+  const pinCenter: [number, number, number] = [ax + nx * 0.12, ay + 0.03, az + nz * 0.12];
 
   return (
     <group>
       <LogoPlane
-        anchor={config.anchors.left}
-        quaternion={leftQuat}
-        logoUrl={zone.sponsor?.logoUrl ?? null}
-        placeholderTitle={placeholderTitle}
-        placeholderVariant={placeholderVariant}
-        onSelect={onSelect}
-      />
-      <LogoPlane
-        anchor={config.anchors.right}
-        quaternion={rightQuat}
+        anchor={config.anchor}
+        quaternion={quat}
         logoUrl={zone.sponsor?.logoUrl ?? null}
         placeholderTitle={placeholderTitle}
         placeholderVariant={placeholderVariant}
