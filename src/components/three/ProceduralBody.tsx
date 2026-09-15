@@ -4,8 +4,8 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { BODY_DIMENSIONS as D } from "@/lib/zones.config";
 
-const SKIN = "#1a2029";
-const TRIM = "#2a323f";
+const SKIN = "#4a5568";
+const TRIM = "#5b6472";
 
 /** Capsule reliant deux points (utilisé pour bras/jambes de l'avatar de secours). */
 function Limb({

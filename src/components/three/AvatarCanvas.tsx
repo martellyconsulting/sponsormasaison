@@ -2,9 +2,10 @@
 
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { ContactShadows, Environment, OrbitControls } from "@react-three/drei";
+import { ContactShadows, OrbitControls } from "@react-three/drei";
 import type { ZoneDTO } from "@/types/zone";
 import { BodyRig } from "./BodyRig";
+import { ResponsiveCamera } from "./ResponsiveCamera";
 
 export function AvatarCanvas({
   zones,
@@ -21,22 +22,31 @@ export function AvatarCanvas({
     <Canvas
       shadows
       dpr={[1, 2]}
-      camera={{ position: [0, 0.1, 2.6], fov: 32 }}
+      camera={{ position: [0, 0.1, 2.6], fov: 44 }}
       className="touch-none"
       gl={{ antialias: true, preserveDrawingBuffer: false }}
     >
       <color attach="background" args={["#0a0d12"]} />
       <fog attach="fog" args={["#0a0d12", 4, 9]} />
+      <ResponsiveCamera />
 
-      <ambientLight intensity={0.55} />
+      {/*
+        Éclairage entièrement local (pas de HDR chargé depuis un CDN externe
+        comme le ferait <Environment>) : plus robuste, ne dépend d'aucune
+        ressource réseau qui pourrait être bloquée (bloqueur de pub, réseau
+        d'entreprise) et casser le rendu 3D pour un visiteur.
+      */}
+      <hemisphereLight args={["#7d8ea3", "#12161d", 1.3]} />
+      <ambientLight intensity={0.9} />
       <directionalLight
         position={[2, 3, 2]}
-        intensity={1.4}
+        intensity={1.9}
         castShadow
         shadow-mapSize={[1024, 1024]}
       />
-      <pointLight position={[-2, 1, -1]} intensity={0.5} color="#c8ff3d" />
-      <pointLight position={[1.5, -1, 1]} intensity={0.35} color="#ff4d2e" />
+      <directionalLight position={[-2, 1.5, 1.5]} intensity={0.7} />
+      <pointLight position={[-2, 1, -1]} intensity={0.6} color="#c8ff3d" />
+      <pointLight position={[1.5, -1, 1]} intensity={0.45} color="#ff4d2e" />
 
       <Suspense fallback={null}>
         <group position={[0, -0.05, 0]}>
@@ -48,7 +58,6 @@ export function AvatarCanvas({
           />
         </group>
         <ContactShadows position={[0, -0.95, 0]} opacity={0.55} scale={3} blur={2.4} far={1.2} />
-        <Environment preset="city" />
       </Suspense>
 
       <OrbitControls

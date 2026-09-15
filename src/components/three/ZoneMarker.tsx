@@ -43,10 +43,10 @@ export function ZoneMarker({
         onSelect={onSelect}
       />
 
-      <Html position={pinCenter} center distanceFactor={2.6} zIndexRange={[10, 0]}>
+      <Html position={pinCenter} center distanceFactor={2.2} zIndexRange={[10, 0]}>
         <button
           onClick={onSelect}
-          className={`pointer-events-auto select-none whitespace-nowrap rounded-full border px-3 py-1 text-[11px] font-display uppercase tracking-wide backdrop-blur-sm transition-transform hover:scale-105 ${
+          className={`pointer-events-auto select-none whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] font-display uppercase tracking-wide backdrop-blur-sm transition-transform hover:scale-105 ${
             highlighted
               ? "border-arena-volt bg-arena-volt/20 text-arena-volt"
               : zone.isClosed
