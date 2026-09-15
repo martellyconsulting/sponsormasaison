@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Html } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
 import type { ZoneConfig } from "@/lib/zones.config";
+import { AVATAR_GROUP_Y_OFFSET } from "@/lib/zones.config";
 import type { ZoneDTO } from "@/types/zone";
 import { formatCents } from "@/lib/format";
 import { quaternionFromNormal } from "./orientation";
@@ -32,6 +35,31 @@ export function ZoneMarker({
   // direction de sa normale, pour rester lisible sans le recouvrir.
   const pinCenter: [number, number, number] = [ax + nx * 0.12, ay + 0.03, az + nz * 0.12];
 
+  // Avec 12 zones, en montrer 12 en permanence (y compris celles dans le dos
+  // quand on regarde de face, ou inversement) créerait un fouillis illisible
+  // dès qu'on n'est pas pile face à l'avatar. On ne garde le pin visible que
+  // lorsque sa normale fait à peu près face à la caméra — recalculé à chaque
+  // frame (léger : un produit scalaire par zone), sans dépendre d'une
+  // occlusion basée sur le rendu (peu fiable en rendu logiciel/headless).
+  const anchorPos = useMemo(() => new THREE.Vector3(ax, ay, az), [ax, ay, az]);
+  const anchorNormal = useMemo(() => new THREE.Vector3(nx, ny, nz).normalize(), [nx, ny, nz]);
+  const [facingCamera, setFacingCamera] = useState(true);
+  const facingRef = useRef(true);
+
+  useFrame(({ camera }) => {
+    // Le groupe racine partagé (AvatarCanvas) ne fait qu'une translation en Y
+    // par rapport au monde : on y ramène la position de la caméra pour rester
+    // dans le même repère que anchorPos/anchorNormal.
+    const camLocal = camera.position.clone();
+    camLocal.y -= AVATAR_GROUP_Y_OFFSET;
+    const toCamera = camLocal.sub(anchorPos).normalize();
+    const facing = toCamera.dot(anchorNormal) > 0.05;
+    if (facing !== facingRef.current) {
+      facingRef.current = facing;
+      setFacingCamera(facing);
+    }
+  });
+
   return (
     <group>
       <LogoPlane
@@ -46,7 +74,11 @@ export function ZoneMarker({
       <Html position={pinCenter} center distanceFactor={2.2} zIndexRange={[10, 0]}>
         <button
           onClick={onSelect}
-          className={`pointer-events-auto select-none whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] font-display uppercase tracking-wide backdrop-blur-sm transition-transform hover:scale-105 ${
+          style={{
+            opacity: facingCamera ? 1 : 0,
+            pointerEvents: facingCamera ? "auto" : "none",
+          }}
+          className={`select-none whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] font-display uppercase tracking-wide backdrop-blur-sm transition-opacity duration-200 hover:scale-105 ${
             highlighted
               ? "border-arena-volt bg-arena-volt/20 text-arena-volt"
               : zone.isClosed
