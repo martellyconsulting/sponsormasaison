@@ -14,11 +14,13 @@ export function AvatarCanvas({
   onSelectZone,
   selectedZoneKey,
   calibrate,
+  onExpandMirror,
 }: {
   zones: ZoneDTO[];
   onSelectZone: (key: string) => void;
   selectedZoneKey: string | null;
   calibrate: boolean;
+  onExpandMirror: () => void;
 }) {
   return (
     <Canvas
@@ -57,7 +59,7 @@ export function AvatarCanvas({
             selectedZoneKey={selectedZoneKey}
             calibrate={calibrate}
           />
-          <VideoScreen />
+          <VideoScreen onExpand={onExpandMirror} />
         </group>
         <ContactShadows position={[0, -0.95, 0]} opacity={0.55} scale={3} blur={2.4} far={1.2} />
       </Suspense>

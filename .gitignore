@@ -27,6 +27,10 @@ public/models/*.glb
 public/videos/*.mp4
 public/videos/*.webm
 
+# Musique extraite de la vidéo de l'athlète — idem
+public/audio/*.mp3
+public/audio/*.m4a
+
 # misc
 .DS_Store
 *.log

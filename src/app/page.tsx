@@ -6,6 +6,7 @@ import { MatrixRain } from "@/components/MatrixRain";
 import { SponsorModal } from "@/components/SponsorModal";
 import { SponsorsOverviewModal } from "@/components/SponsorsOverviewModal";
 import { HowItWorksModal } from "@/components/HowItWorksModal";
+import { MirrorLightboxModal } from "@/components/MirrorLightboxModal";
 import { NextRaceHUD } from "@/components/NextRaceHUD";
 import { SoundToggle } from "@/components/SoundToggle";
 import { useZones } from "@/hooks/useZones";
@@ -19,6 +20,7 @@ export default function HomePage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [showOverview, setShowOverview] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showMirror, setShowMirror] = useState(false);
   const { enabled: soundOn, toggle: toggleSound } = useMotivationalBeat();
 
   useEffect(() => {
@@ -50,6 +52,7 @@ export default function HomePage() {
           onSelectZone={setSelectedZoneKey}
           selectedZoneKey={selectedZoneKey}
           calibrate={calibrate}
+          onExpandMirror={() => setShowMirror(true)}
         />
       </div>
 
@@ -127,6 +130,8 @@ export default function HomePage() {
       )}
 
       {showHowItWorks && <HowItWorksModal onClose={() => setShowHowItWorks(false)} />}
+
+      {showMirror && <MirrorLightboxModal onClose={() => setShowMirror(false)} />}
     </main>
   );
 }
