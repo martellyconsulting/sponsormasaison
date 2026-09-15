@@ -1,24 +1,56 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { BODY_DIMENSIONS } from "@/lib/zones.config";
 
-const PLANE_HEIGHT = 0.58;
-const PLANE_ASPECT = 4 / 5; // portrait, même proportion que la référence du client
+// Grand miroir, quasi grandeur nature à côté de l'athlète (même hauteur que
+// l'avatar), toujours visible — pas un effet caché/révélé selon l'angle.
+const PLANE_HEIGHT = BODY_DIMENSIONS.totalHeight * 0.9;
+const PLANE_ASPECT = 4 / 5; // portrait
 const PLANE_WIDTH = PLANE_HEIGHT * PLANE_ASPECT;
-const FRAME_MARGIN = 0.035;
+const FRAME_MARGIN = 0.05;
 
 /**
  * Écran vidéo posé comme un vrai objet du décor 3D (pas un panneau HTML
- * superposé) : positionné derrière l'avatar, il tourne avec toute la scène
- * quand la caméra orbite autour — exactement le même effet que la
- * référence du client. Le corps de l'athlète l'occulte naturellement vue
- * de face (profondeur réelle du moteur 3D) et le révèle vue de dos, sans
- * calcul de visibilité "à la main".
+ * superposé), à côté de l'avatar, dans le même sens que lui (comme un
+ * miroir qu'il regarderait en permanence) — visible en continu, tourne
+ * avec toute la scène quand la caméra orbite autour.
  */
+const TARGET = new THREE.Vector3(0, -0.05, 0);
+const AVATAR_HALF_WIDTH = 0.42; // dégagement pour ne jamais chevaucher l'avatar
+const GAP = 0.14;
+
 export function VideoScreen() {
   const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const groupRef = useRef<THREE.Group>(null);
+
+  // Le miroir doit rester "aussi grand que possible, jusqu'à la taille de
+  // l'avatar" sans jamais déborder du cadre ni le chevaucher — on recalcule
+  // son échelle et sa position à chaque frame en fonction du champ de vision
+  // réel de la caméra (qui change lui-même selon l'écran, voir
+  // ResponsiveCamera), plutôt qu'une taille fixe qui déborderait sur mobile.
+  useFrame(({ camera, size }) => {
+    const group = groupRef.current;
+    if (!group || !(camera instanceof THREE.PerspectiveCamera)) return;
+
+    const distance = camera.position.distanceTo(TARGET);
+    const aspect = size.width / size.height;
+    const vertHalf = THREE.MathUtils.degToRad(camera.fov / 2);
+    const visibleHalfWidth = distance * Math.tan(vertHalf) * aspect;
+
+    const rightEdge = -(AVATAR_HALF_WIDTH + GAP);
+    const maxScale = THREE.MathUtils.clamp(
+      (rightEdge + visibleHalfWidth * 0.94) / PLANE_WIDTH,
+      0.32,
+      1,
+    );
+
+    group.scale.setScalar(maxScale);
+    group.position.x = rightEdge - (PLANE_WIDTH * maxScale) / 2;
+  });
 
   useEffect(() => {
     const video = document.createElement("video");
@@ -81,17 +113,17 @@ export function VideoScreen() {
   if (!texture) return null;
 
   return (
-    <group position={[-0.6, 0.32, -0.78]} rotation={[0, Math.PI, 0]}>
+    <group ref={groupRef} position={[-1.15, -0.05, 0]}>
       {/* Bordure/bezel dans notre couleur de marque, légèrement en retrait */}
-      <mesh position={[0, 0, -0.004]}>
+      <mesh position={[0, 0, -0.01]}>
         <planeGeometry args={[PLANE_WIDTH + FRAME_MARGIN, PLANE_HEIGHT + FRAME_MARGIN]} />
         <meshBasicMaterial color="#c8ff3d" toneMapped={false} />
       </mesh>
-      <mesh position={[0, 0, -0.002]}>
+      <mesh position={[0, 0, -0.005]}>
         <planeGeometry args={[PLANE_WIDTH + FRAME_MARGIN * 0.5, PLANE_HEIGHT + FRAME_MARGIN * 0.5]} />
         <meshBasicMaterial color="#05070a" toneMapped={false} />
       </mesh>
-      {/* Écran */}
+      {/* Écran, face à la caméra — même sens que l'avatar */}
       <mesh>
         <planeGeometry args={[PLANE_WIDTH, PLANE_HEIGHT]} />
         <meshBasicMaterial map={texture} toneMapped={false} />
