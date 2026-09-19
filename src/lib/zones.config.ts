@@ -86,7 +86,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Pec D",
     order: 2,
     basePriceCents: 18000,
-    anchor: { position: [-0.073, 0.42, 0.049], normal: [-0.5, 0.15, 0.85], size: [0.13, 0.11] },
+    anchor: { position: [0.026, 0.483, 0.015], normal: [-0.5, 0.15, 0.85], size: [0.13, 0.11] },
   },
   {
     key: "pec_gauche",
@@ -94,7 +94,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Pec G",
     order: 3,
     basePriceCents: 18000,
-    anchor: { position: [0.064, 0.419, 0.02], normal: [0.5, 0.15, 0.85], size: [0.13, 0.11] },
+    anchor: { position: [0.131, 0.476, -0.056], normal: [0.5, 0.15, 0.85], size: [0.13, 0.11] },
   },
   {
     key: "biceps_droit",
