@@ -78,7 +78,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Épaule G",
     order: 1,
     basePriceCents: 15000,
-    anchor: { position: [0.095, 0.654, 0.012], normal: [0.6, 0.4, 0.7], size: [0.14, 0.14] },
+    anchor: { position: [0.183, 0.524, -0.219], normal: [0.6, 0.4, 0.7], size: [0.14, 0.14] },
   },
   {
     key: "pec_droit",
@@ -110,7 +110,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Biceps G",
     order: 5,
     basePriceCents: 10000,
-    anchor: { position: [0.099, 0.287, 0.031], normal: [0.85, 0, 0.55], size: [0.11, 0.1] },
+    anchor: { position: [0.219, 0.338, -0.238], normal: [0.85, 0, 0.55], size: [0.11, 0.1] },
   },
   {
     key: "avant_bras_droit",
@@ -126,7 +126,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Avant-bras G",
     order: 7,
     basePriceCents: 8000,
-    anchor: { position: [0.266, 0.152, -0.199], normal: [0.75, 0, 0.66], size: [0.1, 0.11] },
+    anchor: { position: [0.272, 0.125, -0.221], normal: [0.75, 0, 0.66], size: [0.1, 0.11] },
   },
   {
     key: "omoplate_droite",
@@ -142,7 +142,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Omoplate G",
     order: 9,
     basePriceCents: 12000,
-    anchor: { position: [0.075, 0.472, -0.27], normal: [0.35, 0.1, -0.94], size: [0.13, 0.13] },
+    anchor: { position: [0.004, 0.45, -0.236], normal: [0.35, 0.1, -0.94], size: [0.13, 0.13] },
   },
   {
     key: "cuisse_droite",
@@ -174,7 +174,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Mollet G",
     order: 13,
     basePriceCents: 9000,
-    anchor: { position: [0.097, -0.62, -0.229], normal: [0.4, 0, -0.92], size: [0.11, 0.13] },
+    anchor: { position: [0.009, -0.553, -0.26], normal: [0.4, 0, -0.92], size: [0.11, 0.13] },
   },
 ];
 
