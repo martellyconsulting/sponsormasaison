@@ -150,7 +150,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Cuisse D",
     order: 10,
     basePriceCents: 18000,
-    anchor: { position: [-0.093, -0.393, 0.041], normal: [-0.55, 0, 0.83], size: [0.15, 0.17] },
+    anchor: { position: [-0.055, -0.389, 0.04], normal: [-0.55, 0, 0.83], size: [0.15, 0.17] },
   },
   {
     key: "cuisse_gauche",
@@ -158,7 +158,7 @@ export const ZONES: ZoneConfig[] = [
     shortLabel: "Cuisse G",
     order: 11,
     basePriceCents: 18000,
-    anchor: { position: [0.077, -0.354, -0.22], normal: [0.55, 0, 0.83], size: [0.15, 0.17] },
+    anchor: { position: [0.114, -0.372, -0.111], normal: [0.55, 0, 0.83], size: [0.15, 0.17] },
   },
   {
     key: "mollet_droit",
