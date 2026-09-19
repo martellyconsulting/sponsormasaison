@@ -5,12 +5,10 @@ import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import { BODY_DIMENSIONS } from "@/lib/zones.config";
 
-// Deux écrans-miroirs, grandeur quasi nature, fixés dans le décor 3D comme
-// de vrais objets (pas attachés à la caméra) : un devant l'athlète, un
-// derrière. Chacun n'est visible que depuis son propre côté — comme deux
-// vrais écrans plantés dans la scène, pas un panneau qui suit le regard.
-// Ils restent en second plan : l'avatar (premier plan) reste le sujet
-// principal, l'effet Matrix (arrière-plan) reste derrière tout.
+// Grand miroir, quasi grandeur nature à côté de l'athlète, toujours visible
+// (billboard face caméra). Pour donner du dynamisme, il alterne côté
+// gauche/droit toutes les SWITCH_SECONDS, avec un glissement fluide plutôt
+// qu'un saut brusque.
 const PLANE_HEIGHT = BODY_DIMENSIONS.totalHeight * 0.9;
 const PLANE_ASPECT = 4 / 5; // portrait
 const PLANE_WIDTH = PLANE_HEIGHT * PLANE_ASPECT;
@@ -18,29 +16,28 @@ const FRAME_MARGIN = 0.05;
 
 const TARGET = new THREE.Vector3(0, -0.05, 0);
 const AVATAR_HALF_WIDTH = 0.42; // dégagement pour ne jamais chevaucher l'avatar
-const GAP = 0.34;
-const DEPTH = 0.62; // recul par rapport à l'avatar, pour rester "en second plan"
+const GAP = 0.48; // marge nette pour ne pas coller à l'épaule
+const SWITCH_SECONDS = 10;
+const SLIDE_SPEED = 1.4; // vitesse d'interpolation du glissement gauche/droite
 
-type Side = "front" | "back";
+// Vecteurs de travail réutilisés à chaque frame (évite une allocation à 60fps).
+const camRight = new THREE.Vector3();
+const nextPosition = new THREE.Vector3();
 
-function MirrorPanel({
-  side,
-  texture,
-  onExpand,
-}: {
-  side: Side;
-  texture: THREE.VideoTexture;
-  onExpand: () => void;
-}) {
+export function VideoScreen({ onExpand }: { onExpand: () => void }) {
+  const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const groupRef = useRef<THREE.Group>(null);
-  const sign = side === "front" ? -1 : 1;
+  const sideRef = useRef(-1); // -1 = gauche, +1 = droite, valeurs intermédiaires pendant le glissement
 
-  // Taille/position recalculées à chaque frame selon le champ de vision réel
-  // de la caméra (voir ResponsiveCamera) pour ne jamais déborder du cadre ni
-  // chevaucher l'avatar, y compris sur mobile.
-  useFrame(({ camera, size }) => {
+  useFrame(({ camera, size, clock }, delta) => {
     const group = groupRef.current;
     if (!group || !(camera instanceof THREE.PerspectiveCamera)) return;
+
+    group.quaternion.copy(camera.quaternion);
+
+    const targetSide = Math.floor(clock.elapsedTime / SWITCH_SECONDS) % 2 === 0 ? -1 : 1;
+    sideRef.current = THREE.MathUtils.damp(sideRef.current, targetSide, SLIDE_SPEED, delta);
 
     const distance = camera.position.distanceTo(TARGET);
     const aspect = size.width / size.height;
@@ -50,44 +47,16 @@ function MirrorPanel({
     const edge = AVATAR_HALF_WIDTH + GAP;
     const maxScale = THREE.MathUtils.clamp(
       (visibleHalfWidth * 0.94 - edge) / PLANE_WIDTH,
-      0.3,
+      0.32,
       1,
     );
     group.scale.setScalar(maxScale);
-    group.position.x = sign * (edge + (PLANE_WIDTH * maxScale) / 2);
+
+    const xOffset = sideRef.current * (edge + (PLANE_WIDTH * maxScale) / 2);
+    camRight.setFromMatrixColumn(camera.matrixWorld, 0);
+    nextPosition.copy(TARGET).addScaledVector(camRight, xOffset);
+    group.position.copy(nextPosition);
   });
-
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    e.stopPropagation();
-    onExpand();
-  };
-
-  return (
-    <group
-      ref={groupRef}
-      position={[sign * 1.1, -0.05, sign * DEPTH]}
-      rotation={[0, side === "back" ? Math.PI : 0, 0]}
-    >
-      {/* Bordure/bezel dans notre couleur de marque, légèrement en retrait */}
-      <mesh position={[0, 0, -0.01]} onClick={handleClick}>
-        <planeGeometry args={[PLANE_WIDTH + FRAME_MARGIN, PLANE_HEIGHT + FRAME_MARGIN]} />
-        <meshBasicMaterial color="#c8ff3d" toneMapped={false} />
-      </mesh>
-      <mesh position={[0, 0, -0.005]}>
-        <planeGeometry args={[PLANE_WIDTH + FRAME_MARGIN * 0.5, PLANE_HEIGHT + FRAME_MARGIN * 0.5]} />
-        <meshBasicMaterial color="#05070a" toneMapped={false} />
-      </mesh>
-      {/* Écran, même sens que l'avatar de ce côté */}
-      <mesh onClick={handleClick}>
-        <planeGeometry args={[PLANE_WIDTH, PLANE_HEIGHT]} />
-        <meshBasicMaterial map={texture} toneMapped={false} />
-      </mesh>
-    </group>
-  );
-}
-
-export function VideoScreen({ onExpand }: { onExpand: () => void }) {
-  const [texture, setTexture] = useState<THREE.VideoTexture | null>(null);
 
   useEffect(() => {
     const video = document.createElement("video");
@@ -111,6 +80,7 @@ export function VideoScreen({ onExpand }: { onExpand: () => void }) {
     video.appendChild(mp4Source);
 
     document.body.appendChild(video);
+    videoRef.current = video;
 
     const tex = new THREE.VideoTexture(video);
     tex.colorSpace = THREE.SRGBColorSpace;
@@ -147,10 +117,27 @@ export function VideoScreen({ onExpand }: { onExpand: () => void }) {
 
   if (!texture) return null;
 
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    onExpand();
+  };
+
   return (
-    <>
-      <MirrorPanel side="front" texture={texture} onExpand={onExpand} />
-      <MirrorPanel side="back" texture={texture} onExpand={onExpand} />
-    </>
+    <group ref={groupRef} position={[-1.15, -0.05, 0]}>
+      {/* Bordure/bezel dans notre couleur de marque, légèrement en retrait */}
+      <mesh position={[0, 0, -0.01]} onClick={handleClick}>
+        <planeGeometry args={[PLANE_WIDTH + FRAME_MARGIN, PLANE_HEIGHT + FRAME_MARGIN]} />
+        <meshBasicMaterial color="#c8ff3d" toneMapped={false} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, 0, -0.005]}>
+        <planeGeometry args={[PLANE_WIDTH + FRAME_MARGIN * 0.5, PLANE_HEIGHT + FRAME_MARGIN * 0.5]} />
+        <meshBasicMaterial color="#05070a" toneMapped={false} side={THREE.DoubleSide} />
+      </mesh>
+      {/* Écran, toujours face caméra */}
+      <mesh onClick={handleClick}>
+        <planeGeometry args={[PLANE_WIDTH, PLANE_HEIGHT]} />
+        <meshBasicMaterial map={texture} toneMapped={false} side={THREE.DoubleSide} />
+      </mesh>
+    </group>
   );
 }
