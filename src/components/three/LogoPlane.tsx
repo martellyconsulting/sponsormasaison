@@ -25,8 +25,22 @@ export function LogoPlane({
   const [hovered, setHovered] = useState(false);
   const texture = useSponsorTexture({ logoUrl, placeholderTitle, placeholderVariant });
 
+  // Léger décalage vers l'avant (le long de la normale) : posé exactement à
+  // fleur de peau, le panneau se fait par endroits engloutir par le maillage
+  // du corps (z-fighting) selon l'angle de vue, donnant l'impression qu'il
+  // "flotte mal placé". Le sortir très légèrement de la surface le garde
+  // net et bien visible sous tous les angles.
+  const [nx, ny, nz] = anchor.normal;
+  const normalLength = Math.hypot(nx, ny, nz) || 1;
+  const lift = 0.006;
+  const liftedPosition: [number, number, number] = [
+    anchor.position[0] + (nx / normalLength) * lift,
+    anchor.position[1] + (ny / normalLength) * lift,
+    anchor.position[2] + (nz / normalLength) * lift,
+  ];
+
   return (
-    <group position={anchor.position} quaternion={quaternion}>
+    <group position={liftedPosition} quaternion={quaternion}>
       <mesh
         onClick={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();

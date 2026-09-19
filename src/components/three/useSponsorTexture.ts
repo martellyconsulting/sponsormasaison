@@ -20,34 +20,48 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
   return lines.slice(0, 3);
 }
 
-/** Génère le badge texte de secours (placeholder) affiché tant qu'aucun logo n'est disponible. */
+/**
+ * Génère le badge texte de secours (placeholder) affiché tant qu'aucun logo
+ * n'est disponible. Doit rester lisible posé sur de la peau (tons chair,
+ * fond changeant selon l'éclairage) : fond bien opaque, bordure large et
+ * vive dans nos couleurs de marque, léger halo pour se détacher du corps.
+ */
 function drawPlaceholderBadge(title: string, variant: "empty" | "pending"): HTMLCanvasElement {
   const size = 512;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
+  const accent = variant === "empty" ? "#c8ff3d" : "#ff4d2e";
 
   ctx.clearRect(0, 0, size, size);
 
-  const pad = 24;
-  ctx.fillStyle = variant === "empty" ? "rgba(18,22,29,0.55)" : "rgba(200,255,61,0.12)";
-  roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, 36);
+  const pad = 20;
+
+  // Halo doux autour du badge pour le détacher nettement de la peau.
+  ctx.save();
+  ctx.shadowColor = accent;
+  ctx.shadowBlur = 46;
+  ctx.fillStyle = "rgba(6,8,11,0.92)";
+  roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, 40);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.fillStyle = variant === "empty" ? "rgba(200,255,61,0.16)" : "rgba(255,77,46,0.16)";
+  roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, 40);
   ctx.fill();
 
-  ctx.lineWidth = 6;
-  ctx.setLineDash(variant === "empty" ? [18, 14] : []);
-  ctx.strokeStyle = variant === "empty" ? "rgba(142,160,184,0.7)" : "#c8ff3d";
-  roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, 36);
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = accent;
+  roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, 40);
   ctx.stroke();
-  ctx.setLineDash([]);
 
-  ctx.fillStyle = variant === "empty" ? "#8ea0b8" : "#f4ffe0";
+  ctx.fillStyle = "#ffffff";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = "600 40px sans-serif";
-  const lines = wrapLines(ctx, title.toUpperCase(), size - pad * 4);
-  const lineHeight = 50;
+  ctx.font = "700 46px sans-serif";
+  const lines = wrapLines(ctx, title.toUpperCase(), size - pad * 5);
+  const lineHeight = 56;
   const startY = size / 2 - ((lines.length - 1) * lineHeight) / 2;
   lines.forEach((line, i) => ctx.fillText(line, size / 2, startY + i * lineHeight));
 
