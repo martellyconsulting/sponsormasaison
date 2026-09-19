@@ -22,9 +22,9 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
 
 /**
  * Génère le badge texte de secours (placeholder) affiché tant qu'aucun logo
- * n'est disponible. Doit rester lisible posé sur de la peau (tons chair,
- * fond changeant selon l'éclairage) : fond bien opaque, bordure large et
- * vive dans nos couleurs de marque, léger halo pour se détacher du corps.
+ * n'est disponible. Doit ressembler à un vrai sticker/tatouage temporaire
+ * posé sur la peau (comme les logos sponsors une fois uploadés) — pas à une
+ * icône lumineuse d'interface : fond mat opaque, bordure fine, pas de halo.
  */
 function drawPlaceholderBadge(title: string, variant: "empty" | "pending"): HTMLCanvasElement {
   const size = 512;
@@ -32,36 +32,45 @@ function drawPlaceholderBadge(title: string, variant: "empty" | "pending"): HTML
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d")!;
-  const accent = variant === "empty" ? "#c8ff3d" : "#ff4d2e";
+  const radius = 28;
+  const pad = 16;
 
   ctx.clearRect(0, 0, size, size);
 
-  const pad = 20;
+  if (variant === "empty") {
+    // Sticker vierge, comme une étiquette adhésive pas encore imprimée.
+    ctx.fillStyle = "#eef1e8";
+    roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, radius);
+    ctx.fill();
 
-  // Halo doux autour du badge pour le détacher nettement de la peau.
-  ctx.save();
-  ctx.shadowColor = accent;
-  ctx.shadowBlur = 46;
-  ctx.fillStyle = "rgba(6,8,11,0.92)";
-  roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, 40);
-  ctx.fill();
-  ctx.restore();
+    ctx.lineWidth = 6;
+    ctx.setLineDash([16, 12]);
+    ctx.strokeStyle = "#9aa38c";
+    roundRect(ctx, pad + 10, pad + 10, size - (pad + 10) * 2, size - (pad + 10) * 2, radius - 8);
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-  ctx.fillStyle = variant === "empty" ? "rgba(200,255,61,0.16)" : "rgba(255,77,46,0.16)";
-  roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, 40);
-  ctx.fill();
+    ctx.fillStyle = "#3a4030";
+  } else {
+    // Sticker "en attente du logo" : fond plein couleur de marque, comme un
+    // vrai autocollant imprimé en attendant le visuel définitif du sponsor.
+    ctx.fillStyle = "#ff4d2e";
+    roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, radius);
+    ctx.fill();
 
-  ctx.lineWidth = 10;
-  ctx.strokeStyle = accent;
-  roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, 40);
-  ctx.stroke();
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "rgba(0,0,0,0.25)";
+    roundRect(ctx, pad, pad, size - pad * 2, size - pad * 2, radius);
+    ctx.stroke();
 
-  ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#ffffff";
+  }
+
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = "700 46px sans-serif";
-  const lines = wrapLines(ctx, title.toUpperCase(), size - pad * 5);
-  const lineHeight = 56;
+  ctx.font = "700 42px sans-serif";
+  const lines = wrapLines(ctx, title.toUpperCase(), size - pad * 6);
+  const lineHeight = 52;
   const startY = size / 2 - ((lines.length - 1) * lineHeight) / 2;
   lines.forEach((line, i) => ctx.fillText(line, size / 2, startY + i * lineHeight));
 

@@ -106,7 +106,7 @@ export default function HomePage() {
             onClick={() => setShowOverview(true)}
             className="pointer-events-auto shrink-0 rounded-full border border-arena-line bg-arena-panel/80 px-5 py-2.5 font-display text-sm uppercase tracking-wide backdrop-blur-sm transition hover:border-arena-volt hover:text-arena-volt"
           >
-            Voir les sponsors · {sponsoredCount}/{zones.length || 12}
+            Voir les sponsors · {sponsoredCount}/{zones.length || 14}
           </button>
         </footer>
       </div>
